@@ -70,6 +70,8 @@ const Form = () => {
                 value={customCommand}
                 onChange={handlecustomCommandChange}
                 className="p-2 mt-6 border h-36 border-gray-300 rounded custom-textfield"
+                placeholder="-ss, 00:00:02.000, -i, input.mov, -frames:v, 1, output.png
+                "
               />
             </div>
           </>
