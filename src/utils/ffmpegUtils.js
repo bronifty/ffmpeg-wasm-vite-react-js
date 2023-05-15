@@ -103,12 +103,13 @@ export const handleFFmpegOperations = async (event) => {
   console.log(`file.name`, file.name);
 
   if (form.elements.operation.value === "screenshot") {
+    const timestamp = form.elements.timestamp.value;
     ffmpeg.FS("writeFile", file.name, await fetchFile(file));
     await ffmpeg.run(
       "-i",
       file.name,
       "-ss",
-      "00:00:01.000",
+      timestamp,
       "-vframes",
       "1",
       "output.png"

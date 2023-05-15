@@ -6,7 +6,10 @@ const Form = () => {
   const [videoElementSrc, setVideoElementSrc] = useState("");
   const [message, setMessage] = useState("");
   const [operation, setOperation] = useState("screenshot");
-  const [customCommand, setCustomCommand] = useState("");
+  const [timestamp, setTimestamp] = useState("00:00:01.000");
+  const [customCommand, setCustomCommand] = useState(
+    "-ss, 00:00:02.000, -i, input.mov, -frames:v, 1, output.png"
+  );
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -28,6 +31,10 @@ const Form = () => {
   const handleOperationChange = (event) => {
     setOperation(event.target.value);
     // console.log(event.target.value);
+  };
+
+  const handleTimestampChange = (event) => {
+    setTimestamp(event.target.value);
   };
 
   const handlecustomCommandChange = (event) => {
@@ -56,6 +63,25 @@ const Form = () => {
           <option value="custom">Custom</option>
         </select>
 
+        {operation === "screenshot" && (
+          <>
+            <div>
+              <label
+                className="font-semibold text-gray-200"
+                htmlFor="timestamp">
+                Timestamp:
+              </label>
+              <input
+                type="text"
+                id="timestamp"
+                name="timestamp"
+                value={timestamp}
+                onChange={handleTimestampChange}
+                className="block p-2 mt-6 border border-gray-300 rounded"
+              />
+            </div>
+          </>
+        )}
         {operation === "custom" && (
           <>
             <div>
@@ -69,9 +95,7 @@ const Form = () => {
                 name="customCommand"
                 value={customCommand}
                 onChange={handlecustomCommandChange}
-                className="p-2 mt-6 border h-36 border-gray-300 rounded custom-textfield"
-                placeholder="-ss, 00:00:02.000, -i, input.mov, -frames:v, 1, output.png
-                "
+                className="p-2 mt-6 border h-36 border-gray-300 rounded"
               />
             </div>
           </>
