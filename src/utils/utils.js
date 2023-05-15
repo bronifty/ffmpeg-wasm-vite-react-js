@@ -12,26 +12,26 @@ export async function parseCommand(commandCSV) {
   );
 
   const getFileNames = (parsedCommandArray) => {
-    let inputFile, outputFile;
+    let inputFileName, outputFileName;
     for (let i = 0; i < parsedCommandArray.length; i++) {
       if (parsedCommandArray[i] === "-i" && i < parsedCommandArray.length - 1) {
-        inputFile = parsedCommandArray[i + 1];
+        inputFileName = parsedCommandArray[i + 1];
       }
       if (i === parsedCommandArray.length - 1) {
-        outputFile = parsedCommandArray[i];
+        outputFileName = parsedCommandArray[i];
       }
     }
-    return { inputFile, outputFile };
+    return { inputFileName, outputFileName };
   };
-  const { inputFile, outputFile } = getFileNames(arrayWithoutSpaces);
-  return { parsedCommand: arrayWithoutSpaces, inputFile, outputFile };
+  const { inputFileName, outputFileName } = getFileNames(arrayWithoutSpaces);
+  return { parsedCommand: arrayWithoutSpaces, inputFileName, outputFileName };
 }
 
 const checkFileExtension = (file) => {
-  const outputFile = file; // Example file name, change it according to your scenario
+  const outputFileName = file; // Example file name, change it according to your scenario
 
-  const extension = outputFile
-    .substr(outputFile.lastIndexOf("."))
+  const extension = outputFileName
+    .substr(outputFileName.lastIndexOf("."))
     .toLowerCase();
 
   let mediaType;
@@ -55,35 +55,35 @@ const checkFileExtension = (file) => {
     mediaType = "unknown";
   }
 
-  console.log(`Output File: ${outputFile}`);
+  console.log(`Output File: ${outputFileName}`);
   console.log(`Media Type: ${mediaType}`);
   return { mediaType };
 };
 
-const setObjectURL = (outputFile, outputData) => {
+const setObjectURL = (outputFileName, outputFileData) => {
   let returnObj = {
     imageObjectUrl: null,
     videoObjectUrl: null,
     audioObjectUrl: null,
   };
-  const { mediaType } = checkFileExtension(outputFile);
+  const { mediaType } = checkFileExtension(outputFileName);
   console.log(`mediaType`, mediaType);
 
-  let extensionSansDot = outputFile.split(".").pop();
+  let extensionSansDot = outputFileName.split(".").pop();
 
   if (mediaType === "video") {
     const fileUrl = URL.createObjectURL(
-      new Blob([outputData.buffer], { type: `video/${extensionSansDot}` })
+      new Blob([outputFileData.buffer], { type: `video/${extensionSansDot}` })
     );
     returnObj.videoObjectUrl = fileUrl;
   } else if (mediaType === "image") {
     const fileUrl = URL.createObjectURL(
-      new Blob([outputData.buffer], { type: `image/${extensionSansDot}` })
+      new Blob([outputFileData.buffer], { type: `image/${extensionSansDot}` })
     );
     returnObj.imageObjectUrl = fileUrl;
   } else if (mediaType === "audio") {
     const fileUrl = URL.createObjectURL(
-      new Blob([outputData.buffer], { type: `audio/mpeg` })
+      new Blob([outputFileData.buffer], { type: `audio/mpeg` })
     );
     returnObj.audioObjectUrl = fileUrl;
   }
@@ -111,40 +111,40 @@ export const orchestrateFFmpegOperations = async (event) => {
       "1",
       "output.png",
     ];
-    const { parsedCommand, inputFile, outputFile } = await parseCommand(
+    const { parsedCommand, inputFileName, outputFileName } = await parseCommand(
       commandCSV
     );
-    const { outputData } = await runFFmpegJob({
+    const { outputFileData } = await runFFmpegJob({
       parsedCommand,
-      inputFile,
-      outputFile,
-      mediaFile: file,
+      inputFileName,
+      outputFileName,
+      file,
     });
-    returnObj = setObjectURL(outputFile, outputData);
+    returnObj = setObjectURL(outputFileName, outputFileData);
   } else if (form.elements.operation.value === "transcode-mp4") {
     const commandCSV = ["-i", file.name, "output.mp4"];
-    const { parsedCommand, inputFile, outputFile } = await parseCommand(
+    const { parsedCommand, inputFileName, outputFileName } = await parseCommand(
       commandCSV
     );
-    const { outputData } = await runFFmpegJob({
+    const { outputFileData } = await runFFmpegJob({
       parsedCommand,
-      inputFile,
-      outputFile,
-      mediaFile: file,
+      inputFileName,
+      outputFileName,
+      file,
     });
-    returnObj = setObjectURL(outputFile, outputData);
+    returnObj = setObjectURL(outputFileName, outputFileData);
   } else if (form.elements.operation.value === "transcode-mp3") {
     const commandCSV = ["-i", file.name, "-vn", "-ab", "320k", "output.mp3"];
-    const { parsedCommand, inputFile, outputFile } = await parseCommand(
+    const { parsedCommand, inputFileName, outputFileName } = await parseCommand(
       commandCSV
     );
-    const { outputData } = await runFFmpegJob({
+    const { outputFileData } = await runFFmpegJob({
       parsedCommand,
-      inputFile,
-      outputFile,
-      mediaFile: file,
+      inputFileName,
+      outputFileName,
+      file,
     });
-    returnObj = setObjectURL(outputFile, outputData);
+    returnObj = setObjectURL(outputFileName, outputFileData);
   } else if (form.elements.operation.value === "transcode-gif") {
     const commandCSV = [
       "-i",
@@ -155,29 +155,29 @@ export const orchestrateFFmpegOperations = async (event) => {
       "gif",
       "output.gif",
     ];
-    const { parsedCommand, inputFile, outputFile } = await parseCommand(
+    const { parsedCommand, inputFileName, outputFileName } = await parseCommand(
       commandCSV
     );
-    const { outputData } = await runFFmpegJob({
+    const { outputFileData } = await runFFmpegJob({
       parsedCommand,
-      inputFile,
-      outputFile,
-      mediaFile: file,
+      inputFileName,
+      outputFileName,
+      file,
     });
-    returnObj = setObjectURL(outputFile, outputData);
+    returnObj = setObjectURL(outputFileName, outputFileData);
   } else if (form.elements.customCommand.value) {
     const commandText = form.elements.customCommand.value;
     const commandCSV = commandText.split(",");
-    const { parsedCommand, inputFile, outputFile } = await parseCommand(
+    const { parsedCommand, inputFileName, outputFileName } = await parseCommand(
       commandCSV
     );
-    const { outputData } = await runFFmpegJob({
+    const { outputFileData } = await runFFmpegJob({
       parsedCommand,
-      inputFile,
-      outputFile,
-      mediaFile: file,
+      inputFileName,
+      outputFileName,
+      file,
     });
-    returnObj = setObjectURL(outputFile, outputData);
+    returnObj = setObjectURL(outputFileName, outputFileData);
   }
   return returnObj;
 };
