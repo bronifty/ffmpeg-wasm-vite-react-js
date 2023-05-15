@@ -1,6 +1,5 @@
 import React from "react";
-import { handleFFmpegOperations } from "../utils";
-// import { handleFFmpegOperations } from "../utils/ffmpegUtils";
+import { orchestrateFFmpegOperations } from "../utils";
 
 const Form = () => {
   const [imgElementSrc, setImgElementSrc] = React.useState("");
@@ -20,7 +19,7 @@ const Form = () => {
     }
     setMessage("processing ffmpeg job");
     const { imageObjectUrl, videoObjectUrl, audioObjectUrl } =
-      await handleFFmpegOperations(event);
+      await orchestrateFFmpegOperations(event);
     if (imageObjectUrl) {
       setImgElementSrc(imageObjectUrl);
     } else if (videoObjectUrl) {

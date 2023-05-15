@@ -60,21 +60,46 @@ const checkFileExtension = (file) => {
   return { mediaType };
 };
 
-export const handleFFmpegOperations = async (event) => {
-  // await initializeFFmeg();
+const setObjectURL = (outputFile, outputData) => {
+  let returnObj = {
+    imageObjectUrl: null,
+    videoObjectUrl: null,
+    audioObjectUrl: null,
+  };
+  const { mediaType } = checkFileExtension(outputFile);
+  console.log(`mediaType`, mediaType);
+
+  let extensionSansDot = outputFile.split(".").pop();
+
+  if (mediaType === "video") {
+    const fileUrl = URL.createObjectURL(
+      new Blob([outputData.buffer], { type: `video/${extensionSansDot}` })
+    );
+    returnObj.videoObjectUrl = fileUrl;
+  } else if (mediaType === "image") {
+    const fileUrl = URL.createObjectURL(
+      new Blob([outputData.buffer], { type: `image/${extensionSansDot}` })
+    );
+    returnObj.imageObjectUrl = fileUrl;
+  } else if (mediaType === "audio") {
+    const fileUrl = URL.createObjectURL(
+      new Blob([outputData.buffer], { type: `audio/mpeg` })
+    );
+    returnObj.audioObjectUrl = fileUrl;
+  }
+  console.log(`returnObj`, returnObj);
+  return returnObj;
+};
+
+export const orchestrateFFmpegOperations = async (event) => {
   const form = event.target;
   const file = form.elements.fileInput.files[0];
   console.log(`file.name`, file.name);
-
-  let imageObjectUrl = null;
-  let videoObjectUrl = null;
-  let audioObjectUrl = null;
-  const returnObj = {
-    imageObjectUrl,
-    videoObjectUrl,
-    audioObjectUrl,
+  let returnObj = {
+    imageObjectUrl: null,
+    videoObjectUrl: null,
+    audioObjectUrl: null,
   };
-
   if (form.elements.operation.value === "screenshot") {
     const timestamp = form.elements.timestamp.value;
     const commandCSV = [
@@ -86,22 +111,16 @@ export const handleFFmpegOperations = async (event) => {
       "1",
       "output.png",
     ];
-
     const { parsedCommand, inputFile, outputFile } = await parseCommand(
       commandCSV
     );
-
     const { outputData } = await runFFmpegJob({
       parsedCommand,
       inputFile,
       outputFile,
       mediaFile: file,
     });
-
-    const fileUrl = URL.createObjectURL(
-      new Blob([outputData.buffer], { type: "image/png" })
-    );
-    returnObj.imageObjectUrl = fileUrl;
+    returnObj = setObjectURL(outputFile, outputData);
   } else if (form.elements.operation.value === "transcode-mp4") {
     const commandCSV = ["-i", file.name, "output.mp4"];
     const { parsedCommand, inputFile, outputFile } = await parseCommand(
@@ -113,10 +132,7 @@ export const handleFFmpegOperations = async (event) => {
       outputFile,
       mediaFile: file,
     });
-    const fileUrl = URL.createObjectURL(
-      new Blob([outputData.buffer], { type: "video/mp4" })
-    );
-    returnObj.videoObjectUrl = fileUrl;
+    returnObj = setObjectURL(outputFile, outputData);
   } else if (form.elements.operation.value === "transcode-mp3") {
     const commandCSV = ["-i", file.name, "-vn", "-ab", "320k", "output.mp3"];
     const { parsedCommand, inputFile, outputFile } = await parseCommand(
@@ -128,10 +144,7 @@ export const handleFFmpegOperations = async (event) => {
       outputFile,
       mediaFile: file,
     });
-    const fileUrl = URL.createObjectURL(
-      new Blob([outputData.buffer], { type: "audio/mpeg" })
-    );
-    returnObj.audioObjectUrl = fileUrl;
+    returnObj = setObjectURL(outputFile, outputData);
   } else if (form.elements.operation.value === "transcode-gif") {
     const commandCSV = [
       "-i",
@@ -151,10 +164,7 @@ export const handleFFmpegOperations = async (event) => {
       outputFile,
       mediaFile: file,
     });
-    const fileUrl = URL.createObjectURL(
-      new Blob([outputData.buffer], { type: "image/gif" })
-    );
-    returnObj.imageObjectUrl = fileUrl;
+    returnObj = setObjectURL(outputFile, outputData);
   } else if (form.elements.customCommand.value) {
     const commandText = form.elements.customCommand.value;
     const commandCSV = commandText.split(",");
@@ -167,27 +177,7 @@ export const handleFFmpegOperations = async (event) => {
       outputFile,
       mediaFile: file,
     });
-    const { mediaType } = checkFileExtension(outputFile);
-    console.log(`mediaType`, mediaType);
-
-    let extensionSansDot = outputFile.split(".").pop();
-
-    if (mediaType === "video") {
-      const fileUrl = URL.createObjectURL(
-        new Blob([outputData.buffer], { type: `video/${extensionSansDot}` })
-      );
-      returnObj.videoObjectUrl = fileUrl;
-    } else if (mediaType === "image") {
-      const fileUrl = URL.createObjectURL(
-        new Blob([outputData.buffer], { type: `image/${extensionSansDot}` })
-      );
-      returnObj.imageObjectUrl = fileUrl;
-    } else if (mediaType === "audio") {
-      const fileUrl = URL.createObjectURL(
-        new Blob([outputData.buffer], { type: `audio/mpeg` })
-      );
-      returnObj.audioObjectUrl = fileUrl;
-    }
+    returnObj = setObjectURL(outputFile, outputData);
   }
   return returnObj;
 };
