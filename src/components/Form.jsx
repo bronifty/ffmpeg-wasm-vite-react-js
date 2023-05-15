@@ -44,6 +44,9 @@ const Form = () => {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-900">
+      <h1 className="text-center text-gray-200 block p-4">
+        FFmpeg - Upload a Video and Get a Screenshot, Transcode or Choose Custom
+      </h1>
       <form
         id="mediaForm"
         name="mediaForm"
