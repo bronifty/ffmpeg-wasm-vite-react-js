@@ -164,7 +164,7 @@ export const handleFFmpegOperations = async (event) => {
       commandCSV
     );
 
-    const { outputData: data } = await runFFmpegJob({
+    const { outputData } = await runFFmpegJob({
       parsedCommand,
       inputFile,
       outputFile,
@@ -183,7 +183,7 @@ export const handleFFmpegOperations = async (event) => {
     // );
     // const data = ffmpeg.FS("readFile", "output.png");
     const fileUrl = URL.createObjectURL(
-      new Blob([data.buffer], { type: "image/png" })
+      new Blob([outputData.buffer], { type: "image/png" })
     );
     returnObj.imageObjectUrl = fileUrl;
     ffmpeg.FS("unlink", file.name);
@@ -196,7 +196,7 @@ export const handleFFmpegOperations = async (event) => {
       commandCSV
     );
 
-    const { outputData: data } = await runFFmpegJob({
+    const { outputData } = await runFFmpegJob({
       parsedCommand,
       inputFile,
       outputFile,
@@ -204,7 +204,7 @@ export const handleFFmpegOperations = async (event) => {
     });
 
     const fileUrl = URL.createObjectURL(
-      new Blob([data.buffer], { type: "video/mp4" })
+      new Blob([outputData.buffer], { type: "video/mp4" })
     );
     returnObj.videoObjectUrl = fileUrl;
 
@@ -218,7 +218,7 @@ export const handleFFmpegOperations = async (event) => {
       commandCSV
     );
 
-    const { outputData: data } = await runFFmpegJob({
+    const { outputData } = await runFFmpegJob({
       parsedCommand,
       inputFile,
       outputFile,
@@ -226,7 +226,7 @@ export const handleFFmpegOperations = async (event) => {
     });
 
     const fileUrl = URL.createObjectURL(
-      new Blob([data.buffer], { type: "audio/mpeg" })
+      new Blob([outputData.buffer], { type: "audio/mpeg" })
     );
     returnObj.audioObjectUrl = fileUrl;
 
@@ -234,21 +234,29 @@ export const handleFFmpegOperations = async (event) => {
     ffmpeg.FS("unlink", "output.mp3");
     // URL.revokeObjectURL(fileUrl);
   } else if (form.elements.operation.value === "transcode-gif") {
-    ffmpeg.FS("writeFile", file.name, await fetchFile(file));
-    await ffmpeg.run(
+    const commandCSV = [
       "-i",
       file.name,
       "-vf",
       "fps=10",
       "-c:v",
       "gif",
-      "output.gif"
+      "output.gif",
+    ];
+
+    const { parsedCommand, inputFile, outputFile } = await parseCommand(
+      commandCSV
     );
 
-    const data = ffmpeg.FS("readFile", "output.gif");
+    const { outputData } = await runFFmpegJob({
+      parsedCommand,
+      inputFile,
+      outputFile,
+      mediaFile: file,
+    });
 
     const fileUrl = URL.createObjectURL(
-      new Blob([data.buffer], { type: "image/gif" })
+      new Blob([outputData.buffer], { type: "image/gif" })
     );
     returnObj.imageObjectUrl = fileUrl;
 
@@ -258,9 +266,7 @@ export const handleFFmpegOperations = async (event) => {
   } else if (form.elements.customCommand.value) {
     const commandText = form.elements.customCommand.value;
     const commandCSV = commandText.split(",");
-    console.log("commandCSV", commandCSV);
 
-    let outputData = null;
     const { parsedCommand, inputFile, outputFile } = await parseCommand(
       commandCSV
     );
@@ -273,14 +279,12 @@ export const handleFFmpegOperations = async (event) => {
       outputFile
     );
 
-    // const runFFmpegJob2 = async () => {
-    ffmpeg.FS("writeFile", inputFile, await fetchFile(file));
-    try {
-      await ffmpeg.run(...parsedCommand);
-    } catch (error) {
-      console.log("error", error);
-    }
-    outputData = ffmpeg.FS("readFile", outputFile);
+    const { outputData } = await runFFmpegJob({
+      parsedCommand,
+      inputFile,
+      outputFile,
+      mediaFile: file,
+    });
     ffmpeg.FS("unlink", inputFile);
     ffmpeg.FS("unlink", outputFile);
 
