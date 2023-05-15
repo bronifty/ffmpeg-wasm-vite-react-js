@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import { handleFFmpegOperations } from "../utils/ffmpegUtils";
+import { handleFFmpegOperations } from "../utils/utils";
+// import { handleFFmpegOperations } from "../utils/ffmpegUtils";
 
 const Form = () => {
   const [imgElementSrc, setImgElementSrc] = useState("");
@@ -153,7 +154,7 @@ const Form = () => {
       </form>
 
       <h4 className="text-purple-500 text-center m-6">
-        It takes about 1 second to transcode 1 second of film
+        TODO: update the user with progress of ffmpeg job
       </h4>
 
       <div>
