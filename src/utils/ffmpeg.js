@@ -1,4 +1,4 @@
-const { createFFmpeg, fetchFile } = FFmpeg;
+import { createFFmpeg, fetchFile } from "@ffmpeg/ffmpeg";
 let ffmpeg = null;
 
 const initializeFFmeg = async () => {

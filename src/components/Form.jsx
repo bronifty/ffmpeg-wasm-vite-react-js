@@ -1,15 +1,14 @@
-import React, { useState } from "react";
-import { handleFFmpegOperations } from "../utils";
-// import { handleFFmpegOperations } from "../utils/ffmpegUtils";
+import React from "react";
+import { orchestrateFFmpegOperations } from "../utils";
 
 const Form = () => {
-  const [imgElementSrc, setImgElementSrc] = useState("");
-  const [videoElementSrc, setVideoElementSrc] = useState("");
-  const [audioElementSrc, setAudioElementSrc] = useState("");
-  const [message, setMessage] = useState("");
-  const [operation, setOperation] = useState("screenshot");
-  const [timestamp, setTimestamp] = useState("00:00:01.000");
-  const [customCommand, setCustomCommand] = useState(
+  const [imgElementSrc, setImgElementSrc] = React.useState("");
+  const [videoElementSrc, setVideoElementSrc] = React.useState("");
+  const [audioElementSrc, setAudioElementSrc] = React.useState("");
+  const [message, setMessage] = React.useState("");
+  const [operation, setOperation] = React.useState("screenshot");
+  const [timestamp, setTimestamp] = React.useState("00:00:01.000");
+  const [customCommand, setCustomCommand] = React.useState(
     "-i, input.mov, -vf, fps=10, -c:v, gif, output.gif"
   );
 
@@ -20,7 +19,7 @@ const Form = () => {
     }
     setMessage("processing ffmpeg job");
     const { imageObjectUrl, videoObjectUrl, audioObjectUrl } =
-      await handleFFmpegOperations(event);
+      await orchestrateFFmpegOperations(event);
     if (imageObjectUrl) {
       setImgElementSrc(imageObjectUrl);
     } else if (videoObjectUrl) {
