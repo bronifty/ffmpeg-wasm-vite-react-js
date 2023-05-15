@@ -7,6 +7,7 @@ export async function parseCommand(commandCSV) {
   // ffmpeg -ss <time> -i <input_file> -frames:v 1 <output_file>
   // -ss, 00:00:01.000, -i, input.mov, -frames:v, 1, output.png
   // "-i", "input.mov", "output.mp4"
+  // "-i", "input.mov", "-vf", "fps=10", "-c:v", "gif", "output.gif"
 
   const arrayWithoutSpaces = commandCSV.map((item) =>
     item
@@ -153,6 +154,28 @@ export const handleFFmpegOperations = async (event) => {
 
     ffmpeg.FS("unlink", file.name);
     ffmpeg.FS("unlink", "output.mp3");
+    // URL.revokeObjectURL(fileUrl);
+  } else if (form.elements.operation.value === "transcode-gif") {
+    ffmpeg.FS("writeFile", file.name, await fetchFile(file));
+    await ffmpeg.run(
+      "-i",
+      file.name,
+      "-vf",
+      "fps=10",
+      "-c:v",
+      "gif",
+      "output.gif"
+    );
+
+    const data = ffmpeg.FS("readFile", "output.gif");
+
+    const fileUrl = URL.createObjectURL(
+      new Blob([data.buffer], { type: "image/gif" })
+    );
+    returnObj.imageObjectUrl = fileUrl;
+
+    ffmpeg.FS("unlink", file.name);
+    ffmpeg.FS("unlink", "output.gif");
     // URL.revokeObjectURL(fileUrl);
   } else if (form.elements.customCommand.value) {
     const commandText = form.elements.customCommand.value;

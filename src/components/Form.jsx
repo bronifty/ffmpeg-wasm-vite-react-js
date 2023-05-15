@@ -9,7 +9,7 @@ const Form = () => {
   const [operation, setOperation] = useState("screenshot");
   const [timestamp, setTimestamp] = useState("00:00:01.000");
   const [customCommand, setCustomCommand] = useState(
-    "-i, input.mov, -vn, -ab, 320k, output.mp3"
+    "-i, input.mov, -vf, fps=10, -c:v, gif, output.gif"
   );
 
   const handleSubmit = async (event) => {
@@ -87,6 +87,7 @@ const Form = () => {
           <option value="screenshot">Screenshot video</option>
           <option value="transcode-mp4">Transcode video to mp4</option>
           <option value="transcode-mp3">Transcode video to mp3</option>
+          <option value="transcode-gif">Transcode video to gif</option>
           <option value="custom">Custom to mp4 mp3 png jp[e]g or gif</option>
         </select>
 
