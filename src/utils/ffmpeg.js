@@ -212,10 +212,18 @@ export const handleFFmpegOperations = async (event) => {
     ffmpeg.FS("unlink", "output.mp4");
     // URL.revokeObjectURL(fileUrl);
   } else if (form.elements.operation.value === "transcode-mp3") {
-    ffmpeg.FS("writeFile", file.name, await fetchFile(file));
-    await ffmpeg.run("-i", file.name, "-vn", "-ab", "320k", "output.mp3");
+    const commandCSV = ["-i", file.name, "-vn", "-ab", "320k", "output.mp3"];
 
-    const data = ffmpeg.FS("readFile", "output.mp3");
+    const { parsedCommand, inputFile, outputFile } = await parseCommand(
+      commandCSV
+    );
+
+    const { outputData: data } = await runFFmpegJob({
+      parsedCommand,
+      inputFile,
+      outputFile,
+      mediaFile: file,
+    });
 
     const fileUrl = URL.createObjectURL(
       new Blob([data.buffer], { type: "audio/mpeg" })
