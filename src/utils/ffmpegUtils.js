@@ -18,14 +18,14 @@ export async function parseCommand(commandCSV) {
       .trim()
   );
 
-  const getFileNames = (array) => {
+  const getFileNames = (parsedCommandArray) => {
     let inputFile, outputFile;
-    for (let i = 0; i < arrayWithoutSpaces.length; i++) {
-      if (arrayWithoutSpaces[i] === "-i" && i < arrayWithoutSpaces.length - 1) {
-        inputFile = arrayWithoutSpaces[i + 1];
+    for (let i = 0; i < parsedCommandArray.length; i++) {
+      if (parsedCommandArray[i] === "-i" && i < parsedCommandArray.length - 1) {
+        inputFile = parsedCommandArray[i + 1];
       }
-      if (i === arrayWithoutSpaces.length - 1) {
-        outputFile = arrayWithoutSpaces[i];
+      if (i === parsedCommandArray.length - 1) {
+        outputFile = parsedCommandArray[i];
       }
     }
     return { inputFile, outputFile };
@@ -72,7 +72,7 @@ const checkFileExtension = (file) => {
 
   console.log(`Output File: ${outputFile}`);
   console.log(`Media Type: ${mediaType}`);
-  return { mediaType: mediaType.trim() };
+  return { mediaType };
 };
 
 export const initializeFfmpeg = async () => {
@@ -167,17 +167,24 @@ export const handleFFmpegOperations = async (event) => {
 
     const { mediaType } = checkFileExtension(outputFile);
     console.log(`mediaType`, mediaType);
+
+    let extensionSansDot = outputFile.split(".").pop();
+
     if (mediaType === "video") {
+      // const fileUrl = URL.createObjectURL(
+      //   new Blob([outputData.buffer], { type: "video/avi" })
+      // );
       const fileUrl = URL.createObjectURL(
-        new Blob([outputData.buffer], { type: "video/mp4" })
+        new Blob([outputData.buffer], { type: `video/${extensionSansDot}` })
       );
       returnObj.videoObjectUrl = fileUrl;
     } else if (mediaType === "image") {
       const fileUrl = URL.createObjectURL(
-        new Blob([outputData.buffer], { type: "image/png" })
+        new Blob([outputData.buffer], { type: `image/${extensionSansDot}` })
       );
       returnObj.imageObjectUrl = fileUrl;
     }
+    console.log(`returnObj`, returnObj, "extensionSansDot", extensionSansDot);
 
     // const fileUrl = URL.createObjectURL(
     //   new Blob([outputData.buffer], { type: "video/mp4" })

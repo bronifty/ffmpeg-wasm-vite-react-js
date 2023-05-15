@@ -75,9 +75,9 @@ const Form = () => {
           value={operation}
           onChange={handleOperationChange}
           className="p-2 border border-gray-300 rounded">
-          <option value="screenshot">Screenshot</option>
-          <option value="transcode">Transcode</option>
-          <option value="custom">Custom</option>
+          <option value="screenshot">Screenshot video</option>
+          <option value="transcode">Transcode video to mp4</option>
+          <option value="custom">Custom output to mp4 or any image</option>
         </select>
 
         {operation === "screenshot" && (
