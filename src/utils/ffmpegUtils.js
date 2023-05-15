@@ -66,6 +66,8 @@ const checkFileExtension = (file) => {
     extension === ".mov"
   ) {
     mediaType = "video";
+  } else if (extension === ".mp3" || extension === ".m4a") {
+    mediaType = "audio";
   } else {
     mediaType = "unknown";
   }
@@ -95,9 +97,11 @@ export const handleFFmpegOperations = async (event) => {
   const form = event.target;
   let imageObjectUrl = null;
   let videoObjectUrl = null;
+  let audioObjectUrl = null;
   const returnObj = {
     imageObjectUrl,
     videoObjectUrl,
+    audioObjectUrl,
   };
   const file = form.elements.fileInput.files[0];
   console.log(`file.name`, file.name);
@@ -171,9 +175,6 @@ export const handleFFmpegOperations = async (event) => {
     let extensionSansDot = outputFile.split(".").pop();
 
     if (mediaType === "video") {
-      // const fileUrl = URL.createObjectURL(
-      //   new Blob([outputData.buffer], { type: "video/avi" })
-      // );
       const fileUrl = URL.createObjectURL(
         new Blob([outputData.buffer], { type: `video/${extensionSansDot}` })
       );
@@ -183,7 +184,14 @@ export const handleFFmpegOperations = async (event) => {
         new Blob([outputData.buffer], { type: `image/${extensionSansDot}` })
       );
       returnObj.imageObjectUrl = fileUrl;
+    } else if (mediaType === "audio") {
+      const fileUrl = URL.createObjectURL(
+        new Blob([outputData.buffer], { type: `audio/mpeg` })
+      );
+      returnObj.audioObjectUrl = fileUrl;
     }
+
+    // audioObjectUrl
     console.log(`returnObj`, returnObj, "extensionSansDot", extensionSansDot);
 
     // const fileUrl = URL.createObjectURL(

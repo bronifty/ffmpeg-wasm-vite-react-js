@@ -4,11 +4,12 @@ import { handleFFmpegOperations } from "../utils/ffmpegUtils";
 const Form = () => {
   const [imgElementSrc, setImgElementSrc] = useState("");
   const [videoElementSrc, setVideoElementSrc] = useState("");
+  const [audioElementSrc, setAudioElementSrc] = useState("");
   const [message, setMessage] = useState("");
   const [operation, setOperation] = useState("screenshot");
   const [timestamp, setTimestamp] = useState("00:00:01.000");
   const [customCommand, setCustomCommand] = useState(
-    "-ss, 00:00:02.000, -i, input.mov, -frames:v, 1, output.png"
+    "-i, input.mov, -vn, -ab, 320k, output.mp3"
   );
 
   const handleSubmit = async (event) => {
@@ -17,13 +18,14 @@ const Form = () => {
       return console.log("No file selected");
     }
     setMessage("processing ffmpeg job");
-    const { imageObjectUrl, videoObjectUrl } = await handleFFmpegOperations(
-      event
-    );
+    const { imageObjectUrl, videoObjectUrl, audioObjectUrl } =
+      await handleFFmpegOperations(event);
     if (imageObjectUrl) {
       setImgElementSrc(imageObjectUrl);
     } else if (videoObjectUrl) {
       setVideoElementSrc(videoObjectUrl);
+    } else if (audioObjectUrl) {
+      setAudioElementSrc(audioObjectUrl);
     }
     setMessage(null);
   };
@@ -63,8 +65,9 @@ const Form = () => {
           together.
         </h6>
         <p>
-          Note: It outputs to mp4 video and png jp[e]g and gif image. Other
-          formats like webm webp and svg don't really work.
+          Note: It outputs to mp4 video and png jp[e]g and gif image as well as
+          mp3 audio. Other media formats like webm webp and svg don't really
+          work.
         </p>
       </div>
       <form
@@ -83,7 +86,7 @@ const Form = () => {
           className="p-2 border border-gray-300 rounded">
           <option value="screenshot">Screenshot video</option>
           <option value="transcode">Transcode video to mp4</option>
-          <option value="custom">Custom output to mp4 or any image</option>
+          <option value="custom">Custom to mp4 mp3 png jp[e]g or gif</option>
         </select>
 
         {operation === "screenshot" && (
@@ -121,6 +124,13 @@ const Form = () => {
                 className="p-2 mt-6 border h-36 border-gray-300 rounded"
               />
             </div>
+            <h4 className="text-gray-200">
+              Comma separate your commands, with or without single, double, or
+              backtick quotes.{" "}
+              <span className="text-purple-500">
+                Order is important in ffmpeg
+              </span>
+            </h4>
           </>
         )}
 
@@ -141,6 +151,10 @@ const Form = () => {
         </button>
       </form>
 
+      <h4 className="text-purple-500 text-center m-6">
+        It takes about 1 second to transcode 1 second of film
+      </h4>
+
       <div>
         {message && (
           <div className="mt-5 p-2 w-full h-48 text-white bg-red-500">
@@ -160,7 +174,15 @@ const Form = () => {
             controls
           />
         )}
+        {audioElementSrc && (
+          <audio controls>
+            <source src={audioElementSrc} type="audio/mpeg" />
+          </audio>
+        )}
       </div>
+      <footer className="text-purple-500 text-center m-6">
+        Brother Nifty 2023
+      </footer>
     </div>
   );
 };
