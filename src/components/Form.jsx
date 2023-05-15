@@ -1,23 +1,23 @@
 import React from "react";
-import { orchestrateFFmpegOperations } from "../utils";
+import { useStore } from "@nanostores/react";
+import { orchestrateFFmpegOperations, atomStatusMessage } from "../utils";
 
 const Form = () => {
   const [imgElementSrc, setImgElementSrc] = React.useState("");
   const [videoElementSrc, setVideoElementSrc] = React.useState("");
   const [audioElementSrc, setAudioElementSrc] = React.useState("");
-  const [message, setMessage] = React.useState("");
   const [operation, setOperation] = React.useState("screenshot");
   const [timestamp, setTimestamp] = React.useState("00:00:01.000");
   const [customCommand, setCustomCommand] = React.useState(
     "-i, input.mov, -vf, fps=10, -c:v, gif, output.gif"
   );
+  const atomStatusMessageStore = useStore(atomStatusMessage);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
     if (!event.target.elements.fileInput.files.length > 0) {
       return console.log("No file selected");
     }
-    setMessage("processing ffmpeg job");
     const { imageObjectUrl, videoObjectUrl, audioObjectUrl } =
       await orchestrateFFmpegOperations(event);
     if (imageObjectUrl) {
@@ -27,7 +27,6 @@ const Form = () => {
     } else if (audioObjectUrl) {
       setAudioElementSrc(audioObjectUrl);
     }
-    setMessage(null);
   };
 
   const handleOperationChange = (event) => {
@@ -153,16 +152,9 @@ const Form = () => {
       </form>
 
       <h4 className="text-purple-500 text-center m-6">
-        TODO: update the user with progress of ffmpeg job
+        {atomStatusMessageStore}
       </h4>
 
-      <div>
-        {message && (
-          <div className="mt-5 p-2 w-full h-48 text-white bg-red-500">
-            {message}
-          </div>
-        )}
-      </div>
       <div style={{ height: "250px" }}>
         {imgElementSrc && (
           <img className="mt-5 h-48 w-48 object-cover" src={imgElementSrc} />
