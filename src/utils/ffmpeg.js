@@ -20,20 +20,20 @@ const initializeFFmeg = async () => {
 
 export async function runFFmpegJob({
   parsedCommand,
-  inputFile,
-  outputFile,
-  mediaFile,
+  inputFileName,
+  outputFileName,
+  file,
 }) {
-  let outputData = null;
+  let outputFileData = null;
   await initializeFFmeg();
-  ffmpeg.FS("writeFile", inputFile, await fetchFile(mediaFile));
+  ffmpeg.FS("writeFile", inputFileName, await fetchFile(file));
   try {
     await ffmpeg.run(...parsedCommand);
   } catch (error) {
     console.log("error", error);
   }
-  outputData = ffmpeg.FS("readFile", outputFile);
-  ffmpeg.FS("unlink", inputFile);
-  ffmpeg.FS("unlink", outputFile);
-  return { outputData };
+  outputFileData = ffmpeg.FS("readFile", outputFileName);
+  ffmpeg.FS("unlink", inputFileName);
+  ffmpeg.FS("unlink", outputFileName);
+  return { outputFileData };
 }
