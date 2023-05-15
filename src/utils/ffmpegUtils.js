@@ -126,7 +126,7 @@ export const handleFFmpegOperations = async (event) => {
     ffmpeg.FS("unlink", file.name);
     ffmpeg.FS("unlink", "output.png");
     // URL.revokeObjectURL(fileUrl);
-  } else if (form.elements.operation.value === "transcode") {
+  } else if (form.elements.operation.value === "transcode-mp4") {
     ffmpeg.FS("writeFile", file.name, await fetchFile(file));
     await ffmpeg.run("-i", file.name, "output.mp4");
 
@@ -139,6 +139,20 @@ export const handleFFmpegOperations = async (event) => {
 
     ffmpeg.FS("unlink", file.name);
     ffmpeg.FS("unlink", "output.mp4");
+    // URL.revokeObjectURL(fileUrl);
+  } else if (form.elements.operation.value === "transcode-mp3") {
+    ffmpeg.FS("writeFile", file.name, await fetchFile(file));
+    await ffmpeg.run("-i", file.name, "-vn", "-ab", "320k", "output.mp3");
+
+    const data = ffmpeg.FS("readFile", "output.mp3");
+
+    const fileUrl = URL.createObjectURL(
+      new Blob([data.buffer], { type: "audio/mpeg" })
+    );
+    returnObj.audioObjectUrl = fileUrl;
+
+    ffmpeg.FS("unlink", file.name);
+    ffmpeg.FS("unlink", "output.mp3");
     // URL.revokeObjectURL(fileUrl);
   } else if (form.elements.customCommand.value) {
     const commandText = form.elements.customCommand.value;
