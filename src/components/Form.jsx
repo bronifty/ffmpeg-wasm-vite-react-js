@@ -47,19 +47,25 @@ const Form = () => {
       <div className="text-center text-gray-200 block p-4">
         <h1 className="text-center text-gray-200 block p-4">
           FFmpeg - Upload a Video and Get a Screenshot, Transcode or Choose
-          Custom
+          Custom.
         </h1>
         <h5>
-          It's browser ffmpeg.wasm, so no calls to the server and free to host
+          It's browser ffmpeg.wasm, so no calls to the server and free to host.
         </h5>
-        <h6>
+        <h6 className="my-2">
           Check the{" "}
           <span className="font-semibold text-purple-500">
             <a href="https://github.com/bronifty/ffmpeg-wasm-vite-react-js">
               github repo
-            </a>
+            </a>{" "}
           </span>{" "}
+          and fork it for yourself or open an issue and let's work on it
+          together.
         </h6>
+        <p>
+          Note: It outputs to mp4 video and png jp[e]g and gif image. Other
+          formats like webm webp and svg don't really work.
+        </p>
       </div>
       <form
         id="mediaForm"
