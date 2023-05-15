@@ -61,8 +61,7 @@ const Form = () => {
               github repo
             </a>{" "}
           </span>{" "}
-          and fork it for yourself or open an issue and let's work on it
-          together.
+          and submit a PR.
         </h6>
         <p>
           Note: It outputs to mp4 video and png jp[e]g and gif image as well as
