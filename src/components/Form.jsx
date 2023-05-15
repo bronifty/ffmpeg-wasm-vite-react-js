@@ -44,9 +44,23 @@ const Form = () => {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-900">
-      <h1 className="text-center text-gray-200 block p-4">
-        FFmpeg - Upload a Video and Get a Screenshot, Transcode or Choose Custom
-      </h1>
+      <div className="text-center text-gray-200 block p-4">
+        <h1 className="text-center text-gray-200 block p-4">
+          FFmpeg - Upload a Video and Get a Screenshot, Transcode or Choose
+          Custom
+        </h1>
+        <h5>
+          It's browser ffmpeg.wasm, so no calls to the server and free to host
+        </h5>
+        <h6>
+          Check the{" "}
+          <span className="font-semibold text-purple-500">
+            <a href="https://github.com/bronifty/ffmpeg-wasm-vite-react-js">
+              github repo
+            </a>
+          </span>{" "}
+        </h6>
+      </div>
       <form
         id="mediaForm"
         name="mediaForm"
