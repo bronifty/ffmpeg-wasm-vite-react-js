@@ -30,68 +30,57 @@ export async function parseCommand(commandCSV) {
   return { parsedCommand: arrayWithoutSpaces, inputFileName, outputFileName };
 }
 
-const checkFileExtension = (file) => {
-  atomStatusMessage.set("checking file extension");
-  const outputFileName = file; // Example file name, change it according to your scenario
+function checkMediaType(extension) {
+  switch (extension) {
+    case "mp4":
+    case "mov":
+    case "avi":
+      return "video";
+    case "jpg":
+    case "jpeg":
+    case "png":
+    case "gif":
+      return "image";
+    case "mp3":
+    case "m4a":
+    case "flac":
+      return "audio";
+    default:
+      return null;
+  }
+}
 
-  const extension = outputFileName
-    .substr(outputFileName.lastIndexOf("."))
-    .toLowerCase();
+function setObjectURL({ outputFileName, outputFileData }) {
+  const extensionSansDot = outputFileName.split(".").pop();
+  const extensionMimeType = checkMediaType(extensionSansDot);
 
-  let mediaType;
+  if (extensionMimeType) {
+    const fileUrl = URL.createObjectURL(
+      new Blob([outputFileData.buffer], {
+        type: `${extensionMimeType}/${extensionSansDot}`,
+      })
+    );
 
-  if (
-    extension === ".png" ||
-    extension === ".jpg" ||
-    extension === ".jpeg" ||
-    extension === ".gif"
-  ) {
-    mediaType = "image";
-  } else if (
-    extension === ".mp4" ||
-    extension === ".avi" ||
-    extension === ".mov"
-  ) {
-    mediaType = "video";
-  } else if (extension === ".mp3" || extension === ".m4a") {
-    mediaType = "audio";
+    return {
+      [`${extensionMimeType}ObjectUrl`]: fileUrl,
+    };
   } else {
-    mediaType = "unknown";
+    console.error("Unsupported media type");
+    return null;
   }
+}
 
-  console.log(`Output File: ${outputFileName}`);
-  console.log(`Media Type: ${mediaType}`);
-  return { mediaType };
-};
-
-const setObjectURL = (outputFileName, outputFileData) => {
-  atomStatusMessage.set("setting object URL");
-  let returnObj = {
-    imageObjectUrl: null,
-    videoObjectUrl: null,
-    audioObjectUrl: null,
-  };
-  const { mediaType } = checkFileExtension(outputFileName);
-  console.log(`mediaType`, mediaType);
-
-  let extensionSansDot = outputFileName.split(".").pop();
-
-  if (mediaType === "video") {
-    const fileUrl = URL.createObjectURL(
-      new Blob([outputFileData.buffer], { type: `video/${extensionSansDot}` })
-    );
-    returnObj.videoObjectUrl = fileUrl;
-  } else if (mediaType === "image") {
-    const fileUrl = URL.createObjectURL(
-      new Blob([outputFileData.buffer], { type: `image/${extensionSansDot}` })
-    );
-    returnObj.imageObjectUrl = fileUrl;
-  } else if (mediaType === "audio") {
-    const fileUrl = URL.createObjectURL(
-      new Blob([outputFileData.buffer], { type: `audio/mpeg` })
-    );
-    returnObj.audioObjectUrl = fileUrl;
-  }
+const composeFFmpegJob = async ({ file, commandCSV }) => {
+  const { parsedCommand, inputFileName, outputFileName } = await parseCommand(
+    commandCSV
+  );
+  const { outputFileData } = await runFFmpegJob({
+    parsedCommand,
+    inputFileName,
+    outputFileName,
+    file,
+  });
+  let returnObj = setObjectURL({ outputFileName, outputFileData });
   console.log(`returnObj`, returnObj);
   return returnObj;
 };
@@ -118,42 +107,17 @@ export const orchestrateFFmpegOperations = async (event) => {
       "1",
       "output.png",
     ];
-    const { parsedCommand, inputFileName, outputFileName } = await parseCommand(
-      commandCSV
-    );
-    const { outputFileData } = await runFFmpegJob({
-      parsedCommand,
-      inputFileName,
-      outputFileName,
-      file,
-    });
-    returnObj = setObjectURL(outputFileName, outputFileData);
+    returnObj = await composeFFmpegJob({ file, commandCSV });
   } else if (form.elements.operation.value === "transcode-mp4") {
-    atomStatusMessage.set("transcoding to mp4");
-    const commandCSV = ["-i", file.name, "output.mp4"];
-    const { parsedCommand, inputFileName, outputFileName } = await parseCommand(
-      commandCSV
+    atomStatusMessage.set(
+      "transcoding to mp4 trying new composeFFmpegJob function"
     );
-    const { outputFileData } = await runFFmpegJob({
-      parsedCommand,
-      inputFileName,
-      outputFileName,
-      file,
-    });
-    returnObj = setObjectURL(outputFileName, outputFileData);
+    const commandCSV = ["-i", file.name, "output.mp4"];
+    returnObj = await composeFFmpegJob({ file, commandCSV });
   } else if (form.elements.operation.value === "transcode-mp3") {
     atomStatusMessage.set("transcoding to mp3");
     const commandCSV = ["-i", file.name, "-vn", "-ab", "320k", "output.mp3"];
-    const { parsedCommand, inputFileName, outputFileName } = await parseCommand(
-      commandCSV
-    );
-    const { outputFileData } = await runFFmpegJob({
-      parsedCommand,
-      inputFileName,
-      outputFileName,
-      file,
-    });
-    returnObj = setObjectURL(outputFileName, outputFileData);
+    returnObj = await composeFFmpegJob({ file, commandCSV });
   } else if (form.elements.operation.value === "transcode-gif") {
     atomStatusMessage.set("transcoding to gif");
     const commandCSV = [
@@ -165,30 +129,12 @@ export const orchestrateFFmpegOperations = async (event) => {
       "gif",
       "output.gif",
     ];
-    const { parsedCommand, inputFileName, outputFileName } = await parseCommand(
-      commandCSV
-    );
-    const { outputFileData } = await runFFmpegJob({
-      parsedCommand,
-      inputFileName,
-      outputFileName,
-      file,
-    });
-    returnObj = setObjectURL(outputFileName, outputFileData);
+    returnObj = await composeFFmpegJob({ file, commandCSV });
   } else if (form.elements.customCommand.value) {
     atomStatusMessage.set("running custom command");
     const commandText = form.elements.customCommand.value;
     const commandCSV = commandText.split(",");
-    const { parsedCommand, inputFileName, outputFileName } = await parseCommand(
-      commandCSV
-    );
-    const { outputFileData } = await runFFmpegJob({
-      parsedCommand,
-      inputFileName,
-      outputFileName,
-      file,
-    });
-    returnObj = setObjectURL(outputFileName, outputFileData);
+    returnObj = await composeFFmpegJob({ file, commandCSV });
   }
   atomStatusMessage.set("done 🐶");
   return returnObj;
