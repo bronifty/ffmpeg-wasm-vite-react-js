@@ -3,7 +3,6 @@ import { atomStatusMessage } from "./nanostore.js";
 let ffmpeg = null;
 
 const initializeFFmeg = async () => {
-  atomStatusMessage.set("Loading ffmpeg-core.js");
   const ffmpegInstance = createFFmpeg({
     mainName: "main",
     corePath: "https://unpkg.com/@ffmpeg/core-st@0.11.1/dist/ffmpeg-core.js",
@@ -27,6 +26,7 @@ export async function runFFmpegJob({
   file,
 }) {
   let outputFileData = null;
+  atomStatusMessage.set("Loading ffmpeg-core.js");
   await initializeFFmeg();
   atomStatusMessage.set("writing file to memory");
   ffmpeg.FS("writeFile", inputFileName, await fetchFile(file));
